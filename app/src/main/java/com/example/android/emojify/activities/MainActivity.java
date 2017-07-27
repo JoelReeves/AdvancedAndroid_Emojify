@@ -14,8 +14,7 @@
 * limitations under the License.
 */
 
-package com.example.android.emojify;
-
+package com.example.android.emojify.activities;
 
 import android.Manifest;
 import android.content.Intent;
@@ -36,20 +35,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.android.emojify.R;
+import com.example.android.emojify.utils.BitmapUtils;
+import com.example.android.emojify.utils.Emojifier;
+
 import java.io.File;
 import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int REQUEST_STORAGE_PERMISSION = 1;
-
     private static final String FILE_PROVIDER_AUTHORITY = "com.example.android.fileprovider";
 
     @BindView(R.id.image_view) ImageView mImageView;
@@ -71,11 +71,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Bind the views
         ButterKnife.bind(this);
-
-        // Set up Timber
-        Timber.plant(new Timber.DebugTree());
     }
 
     /**
@@ -84,14 +80,10 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.emojify_button)
     public void emojifyMe() {
         // Check for the external storage permission
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
             // If you do not have permission, request it
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                    REQUEST_STORAGE_PERMISSION);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
         } else {
             // Launch the camera if the permission exists
             launchCamera();
@@ -142,9 +134,7 @@ public class MainActivity extends AppCompatActivity {
                 mTempPhotoPath = photoFile.getAbsolutePath();
 
                 // Get the content URI for the image file
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        FILE_PROVIDER_AUTHORITY,
-                        photoFile);
+                Uri photoURI = FileProvider.getUriForFile(this, FILE_PROVIDER_AUTHORITY, photoFile);
 
                 // Add the URI so the camera can store the image
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -183,7 +173,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Resample the saved image to fit the ImageView
         mResultsBitmap = BitmapUtils.resamplePic(this, mTempPhotoPath);
-
 
         // Detect the faces and overlay the appropriate emoji
         mResultsBitmap = Emojifier.detectFacesandOverlayEmoji(this, mResultsBitmap);
